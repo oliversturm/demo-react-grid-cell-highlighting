@@ -30,7 +30,7 @@ const ConditionalHighlightCellBase = ({
   column
 }) => (
   <TableCell
-    style={{ ...style, ...highlightStyle, textAlign: 'left' }}
+    style={{ ...style, ...highlightStyle }}
     className={classNames({
       [classes.cell]: true,
       [classes.cellRightAlign]: column.align === 'right'
