@@ -28,7 +28,9 @@ const isQuiteOld = (row, column) => column.name === 'year' && row.year < 1970;
 const conditionalHighlightTemplate = conditionalHighlight(
   ({ row, column }) => isSpecialRow(row) || isQuiteOld(row, column),
   ({ row, column, defaultStyle }) =>
-    isQuiteOld(row, column) ? { background: 'green' } : defaultStyle
+    isQuiteOld(row, column)
+      ? { background: 'green', color: 'yellow' }
+      : defaultStyle
 );
 
 const App = () => (
