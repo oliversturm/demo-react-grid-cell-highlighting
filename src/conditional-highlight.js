@@ -64,23 +64,27 @@ const defaultGetHighlightStyle = () => ({ color: red[700] });
 const conditionalHighlight = (
   needsHighlighting,
   getHighlightStyle = defaultGetHighlightStyle
-) => ({ value, style, row, column }) => {
-  if (needsHighlighting({ value, row, column })) {
-    const hs =
-      getHighlightStyle({
-        value,
-        row,
-        column
-      }) || defaultGetHighlightStyle();
-    return (
-      <ConditionalHighlightCell
-        style={style}
-        value={value}
-        highlightStyle={hs}
-        column={column}
-      />
-    );
-  } else return undefined;
+) => {
+  console.log('creating conditional highlight handler for tableCellTemplate');
+  return ({ value, style, row, column }) => {
+    console.log('checking highlight condition');
+    if (needsHighlighting({ value, row, column })) {
+      const hs =
+        getHighlightStyle({
+          value,
+          row,
+          column
+        }) || defaultGetHighlightStyle();
+      return (
+        <ConditionalHighlightCell
+          style={style}
+          value={value}
+          highlightStyle={hs}
+          column={column}
+        />
+      );
+    } else return undefined;
+  };
 };
 
 export { conditionalHighlight };

@@ -47,16 +47,22 @@ const App = ({ theme }) => (
       <LocalPaging />
       <DragDropContext />
       {/* this doesn't work - I can see that the Getter is executed,
-      but somehow I never end up in my event handler  
+      but somehow I never end up in my event handler  */}
       <ConditionalHighlight
         needsHighlighting={({ row, column }) =>
           isSpecialRow(row) || isQuiteOld(row, column)}
         getHighlightStyle={({ row, column }) =>
-          isQuiteOld(row, column) ? { background: blue[100] } : undefined}
-      /> */}
-      <TableView
-        allowColumnReordering
-        tableCellTemplate={conditionalHighlight(
+          isQuiteOld(row, column)
+            ? {
+                background: theme.palette.secondary[100],
+                color: theme.palette.getContrastText(
+                  theme.palette.secondary[100]
+                )
+              }
+            : undefined}
+      />
+      <TableView allowColumnReordering />
+      {/* tableCellTemplate={conditionalHighlight(
           ({ row, column }) => isSpecialRow(row) || isQuiteOld(row, column),
           ({ row, column }) =>
             isQuiteOld(row, column)
@@ -67,8 +73,7 @@ const App = ({ theme }) => (
                   )
                 }
               : undefined
-        )}
-      />
+        )} */}
       <TableHeaderRow allowSorting allowDragging />
       <PagingPanel allowedPageSizes={[0, 5, 10, 20]} />
     </Grid>
