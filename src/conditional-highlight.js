@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { TableCell } from 'material-ui';
 import { withStyles } from 'material-ui/styles';
 import classNames from 'classnames';
+import { red } from 'material-ui/colors';
+
+import { Getter, PluginContainer } from '@devexpress/dx-react-core';
 
 // copied styles and base implementation of the table cell from
 // https://github.com/DevExpress/devextreme-reactive/blob/master/packages/dx-react-grid-material-ui/src/templates/table-cell.jsx
@@ -56,19 +59,19 @@ const ConditionalHighlightCell = withStyles(styles, {
   name: 'ConditionalHighlightCell'
 })(ConditionalHighlightCellBase);
 
-const defaultGetHighlightStyle = () => ({ color: '#ff0000' });
+const defaultGetHighlightStyle = () => ({ color: red[700] });
 
 const conditionalHighlight = (
   needsHighlighting,
   getHighlightStyle = defaultGetHighlightStyle
 ) => ({ value, style, row, column }) => {
   if (needsHighlighting({ value, row, column })) {
-    const hs = getHighlightStyle({
-      defaultStyle: defaultGetHighlightStyle(),
-      value,
-      row,
-      column
-    });
+    const hs =
+      getHighlightStyle({
+        value,
+        row,
+        column
+      }) || defaultGetHighlightStyle();
     return (
       <ConditionalHighlightCell
         style={style}
@@ -81,3 +84,19 @@ const conditionalHighlight = (
 };
 
 export { conditionalHighlight };
+
+const ConditionalHighlight = ({ needsHighlighting, getHighlightStyle }) => (
+  <PluginContainer>
+    <Getter
+      name="tableCellTemplate"
+      value={conditionalHighlight(needsHighlighting, getHighlightStyle)}
+    />
+  </PluginContainer>
+);
+
+ConditionalHighlight.propTypes = {
+  needsHighlighting: PropTypes.func.isRequired,
+  getHighlightStyle: PropTypes.func
+};
+
+export { ConditionalHighlight };

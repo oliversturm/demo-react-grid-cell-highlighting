@@ -2,6 +2,12 @@ import React from 'react';
 import { render } from 'react-dom';
 
 import { Paper } from 'material-ui';
+import { blue } from 'material-ui/colors';
+import {
+  MuiThemeProvider,
+  createMuiTheme,
+  withTheme
+} from 'material-ui/styles';
 
 import {
   SortingState,
@@ -20,20 +26,16 @@ import {
 
 import { columns, rows } from './data';
 
-import { conditionalHighlight } from './conditional-highlight';
+import {
+  ConditionalHighlight,
+  conditionalHighlight
+} from './conditional-highlight';
 
 const getRowId = row => row.id;
 const isSpecialRow = row => row.special;
 const isQuiteOld = (row, column) => column.name === 'year' && row.year < 1970;
-const conditionalHighlightTemplate = conditionalHighlight(
-  ({ row, column }) => isSpecialRow(row) || isQuiteOld(row, column),
-  ({ row, column, defaultStyle }) =>
-    isQuiteOld(row, column)
-      ? { background: 'green', color: 'yellow' }
-      : defaultStyle
-);
 
-const App = () => (
+const App = ({ theme }) => (
   <Paper>
     <Grid columns={columns} rows={rows} getRowId={getRowId}>
       <PagingState defaultPageSize={5} />
@@ -44,9 +46,28 @@ const App = () => (
       <LocalSorting />
       <LocalPaging />
       <DragDropContext />
+      {/* this doesn't work - I can see that the Getter is executed,
+      but somehow I never end up in my event handler  
+      <ConditionalHighlight
+        needsHighlighting={({ row, column }) =>
+          isSpecialRow(row) || isQuiteOld(row, column)}
+        getHighlightStyle={({ row, column }) =>
+          isQuiteOld(row, column) ? { background: blue[100] } : undefined}
+      /> */}
       <TableView
         allowColumnReordering
-        tableCellTemplate={conditionalHighlightTemplate}
+        tableCellTemplate={conditionalHighlight(
+          ({ row, column }) => isSpecialRow(row) || isQuiteOld(row, column),
+          ({ row, column }) =>
+            isQuiteOld(row, column)
+              ? {
+                  background: theme.palette.secondary[100],
+                  color: theme.palette.getContrastText(
+                    theme.palette.secondary[100]
+                  )
+                }
+              : undefined
+        )}
       />
       <TableHeaderRow allowSorting allowDragging />
       <PagingPanel allowedPageSizes={[0, 5, 10, 20]} />
@@ -54,4 +75,13 @@ const App = () => (
   </Paper>
 );
 
-render(<App />, document.getElementById('root'));
+const ThemedApp = withTheme()(App);
+
+const theme = createMuiTheme();
+
+render(
+  <MuiThemeProvider theme={theme}>
+    <ThemedApp />
+  </MuiThemeProvider>,
+  document.getElementById('root')
+);
