@@ -66,7 +66,11 @@ const App = ({ theme }) => (
                     theme.palette.secondary[100]
                   )
                 }
-              : undefined
+              : undefined,
+          ({ row, column }) =>
+            isQuiteOld(row, column)
+              ? 'This is quite old music!'
+              : row.specialReason
         )}
       />
       <TableHeaderRow allowSorting allowDragging />
