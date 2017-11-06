@@ -60,6 +60,10 @@ const App = ({ theme }) => (
                 )
               }
             : undefined}
+        getHighlightReason={({ row, column }) =>
+          isQuiteOld(row, column)
+            ? 'This is quite old music!'
+            : row.specialReason}
       />
       <TableView allowColumnReordering />
       {/* tableCellTemplate={conditionalHighlight(

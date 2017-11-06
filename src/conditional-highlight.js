@@ -75,26 +75,31 @@ const conditionalHighlight = (
   needsHighlighting,
   getHighlightStyle = defaultGetHighlightStyle,
   getHighlightReason = defaultGetHighlightReason
-) => ({ value, style, row, column }) => {
-  if (needsHighlighting({ value, row, column })) {
-    const hs =
-      getHighlightStyle({
-        value,
-        row,
-        column
-      }) || defaultGetHighlightStyle();
-    const hr =
-      getHighlightReason({ value, row, column }) || defaultGetHighlightReason();
-    return (
-      <ConditionalHighlightCell
-        style={style}
-        value={value}
-        highlightStyle={hs}
-        highlightReason={hr}
-        column={column}
-      />
-    );
-  } else return undefined;
+) => {
+  console.log('Creating template function');
+  return ({ value, style, row, column }) => {
+    console.log('Calling template function');
+    if (needsHighlighting({ value, row, column })) {
+      const hs =
+        getHighlightStyle({
+          value,
+          row,
+          column
+        }) || defaultGetHighlightStyle();
+      const hr =
+        getHighlightReason({ value, row, column }) ||
+        defaultGetHighlightReason();
+      return (
+        <ConditionalHighlightCell
+          style={style}
+          value={value}
+          highlightStyle={hs}
+          highlightReason={hr}
+          column={column}
+        />
+      );
+    } else return undefined;
+  };
 };
 
 export { conditionalHighlight };
