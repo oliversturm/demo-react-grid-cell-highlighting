@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TableCell } from 'material-ui';
+import { TableCell, Tooltip } from 'material-ui';
 import { withStyles } from 'material-ui/styles';
 import classNames from 'classnames';
 import { red } from 'material-ui/colors';
@@ -29,6 +29,7 @@ const ConditionalHighlightCellBase = ({
   style,
   value,
   highlightStyle,
+  highlightReason,
   classes,
   column
 }) => (
@@ -39,7 +40,13 @@ const ConditionalHighlightCellBase = ({
       [classes.cellRightAlign]: column.align === 'right'
     })}
   >
-    {value}
+    {highlightReason ? (
+      <Tooltip placement="right" title={highlightReason}>
+        <span>{value}</span>
+      </Tooltip>
+    ) : (
+      <span>{value}</span>
+    )}
   </TableCell>
 );
 
@@ -48,11 +55,13 @@ ConditionalHighlightCellBase.propTypes = {
   style: PropTypes.object,
   classes: PropTypes.object.isRequired,
   highlightStyle: PropTypes.object.isRequired,
+  highlightReason: PropTypes.string,
   column: PropTypes.object
 };
 ConditionalHighlightCellBase.defaultProps = {
   style: {},
-  column: {}
+  column: {},
+  highlightReason: undefined
 };
 
 const ConditionalHighlightCell = withStyles(styles, {
@@ -60,47 +69,57 @@ const ConditionalHighlightCell = withStyles(styles, {
 })(ConditionalHighlightCellBase);
 
 const defaultGetHighlightStyle = () => ({ color: red[700] });
+const defaultGetHighlightReason = () => undefined;
 
 const conditionalHighlight = (
   needsHighlighting,
-  getHighlightStyle = defaultGetHighlightStyle
-) => {
-  console.log('creating conditional highlight handler for tableCellTemplate');
-  return ({ value, style, row, column }) => {
-    console.log('checking highlight condition');
-    if (needsHighlighting({ value, row, column })) {
-      const hs =
-        getHighlightStyle({
-          value,
-          row,
-          column
-        }) || defaultGetHighlightStyle();
-      return (
-        <ConditionalHighlightCell
-          style={style}
-          value={value}
-          highlightStyle={hs}
-          column={column}
-        />
-      );
-    } else return undefined;
-  };
+  getHighlightStyle = defaultGetHighlightStyle,
+  getHighlightReason = defaultGetHighlightReason
+) => ({ value, style, row, column }) => {
+  if (needsHighlighting({ value, row, column })) {
+    const hs =
+      getHighlightStyle({
+        value,
+        row,
+        column
+      }) || defaultGetHighlightStyle();
+    const hr =
+      getHighlightReason({ value, row, column }) || defaultGetHighlightReason();
+    return (
+      <ConditionalHighlightCell
+        style={style}
+        value={value}
+        highlightStyle={hs}
+        highlightReason={hr}
+        column={column}
+      />
+    );
+  } else return undefined;
 };
 
 export { conditionalHighlight };
 
-const ConditionalHighlight = ({ needsHighlighting, getHighlightStyle }) => (
+const ConditionalHighlight = ({
+  needsHighlighting,
+  getHighlightStyle,
+  getHighlightReason
+}) => (
   <PluginContainer>
     <Getter
       name="tableCellTemplate"
-      value={conditionalHighlight(needsHighlighting, getHighlightStyle)}
+      value={conditionalHighlight(
+        needsHighlighting,
+        getHighlightStyle,
+        getHighlightReason
+      )}
     />
   </PluginContainer>
 );
 
 ConditionalHighlight.propTypes = {
   needsHighlighting: PropTypes.func.isRequired,
-  getHighlightStyle: PropTypes.func
+  getHighlightStyle: PropTypes.func,
+  getHighlightReason: PropTypes.func
 };
 
 export { ConditionalHighlight };
