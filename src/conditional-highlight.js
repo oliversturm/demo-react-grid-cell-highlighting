@@ -13,9 +13,20 @@ import { PluginContainer, Template } from '@devexpress/dx-react-core';
 const styles = theme => ({
   cell: {
     paddingRight: theme.spacing.unit,
-    '& ~ $cell': {
+    // This selector improves indenting of the cell in the demo scenario -
+    // the original version doesn't work right if there's only one column
+    // in a row rendered using the conditional cell highlight template,
+    // because $cell refers to my style instead of the standard style.
+    // I'm warned that this selector also comes with issues, but they
+    // are not apparent in this demo.
+    // This will hopefully change for the better when a final templating
+    // approach is implemented.
+    '&:not(:first-child)': {
       paddingLeft: theme.spacing.unit
     },
+    // '& ~ $cell': {
+    //   paddingLeft: theme.spacing.unit
+    // },
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
