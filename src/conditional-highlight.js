@@ -5,7 +5,7 @@ import { withStyles } from 'material-ui/styles';
 import classNames from 'classnames';
 import { red } from 'material-ui/colors';
 
-import { Getter, PluginContainer } from '@devexpress/dx-react-core';
+import { PluginContainer, Template } from '@devexpress/dx-react-core';
 
 // copied styles and base implementation of the table cell from
 // https://github.com/DevExpress/devextreme-reactive/blob/master/packages/dx-react-grid-material-ui/src/templates/table-cell.jsx
@@ -71,48 +71,39 @@ const ConditionalHighlightCell = withStyles(styles, {
 const defaultGetHighlightStyle = () => ({ color: red[700] });
 const defaultGetHighlightReason = () => undefined;
 
-const conditionalHighlight = (
-  needsHighlighting,
-  getHighlightStyle = defaultGetHighlightStyle,
-  getHighlightReason = defaultGetHighlightReason
-) => ({ value, style, row, column }) => {
-  if (needsHighlighting({ value, row, column })) {
-    const hs =
-      getHighlightStyle({
-        value,
-        row,
-        column
-      }) || defaultGetHighlightStyle();
-    const hr =
-      getHighlightReason({ value, row, column }) || defaultGetHighlightReason();
-    return (
-      <ConditionalHighlightCell
-        style={style}
-        value={value}
-        highlightStyle={hs}
-        highlightReason={hr}
-        column={column}
-      />
-    );
-  } else return undefined;
-};
-
-export { conditionalHighlight };
+const transform = p => ({
+  row: p.tableRow.row,
+  column: p.tableColumn.column,
+  value: p.tableRow.row[p.tableColumn.column.name]
+});
 
 const ConditionalHighlight = ({
   needsHighlighting,
   getHighlightStyle,
   getHighlightReason
 }) => (
-  <PluginContainer>
-    <Getter
-      name="tableCellTemplate"
-      value={conditionalHighlight(
-        needsHighlighting,
-        getHighlightStyle,
-        getHighlightReason
-      )}
-    />
+  <PluginContainer dependencies={[{ pluginName: 'TableView' }]}>
+    <Template
+      name="tableViewCell"
+      predicate={p =>
+        p.tableRow.type === 'data' && needsHighlighting(transform(p))}
+    >
+      {p => {
+        const params = transform(p);
+        const hs =
+          getHighlightStyle(params) || defaultGetHighlightStyle(params);
+        const hr = getHighlightReason(params);
+        return (
+          <ConditionalHighlightCell
+            style={p.style}
+            value={params.value}
+            highlightStyle={hs}
+            highlightReason={hr}
+            column={params.column}
+          />
+        );
+      }}
+    </Template>
   </PluginContainer>
 );
 
@@ -120,6 +111,11 @@ ConditionalHighlight.propTypes = {
   needsHighlighting: PropTypes.func.isRequired,
   getHighlightStyle: PropTypes.func,
   getHighlightReason: PropTypes.func
+};
+
+ConditionalHighlight.defaultProps = {
+  getHighlightStyle: defaultGetHighlightStyle,
+  getHighlightReason: defaultGetHighlightReason
 };
 
 export { ConditionalHighlight };
